@@ -6,12 +6,14 @@ import { IUser } from '@/app/interfaces'
 import Navbar from '@/app/_components/Navbar'
 
 export default function Profile() {
-  const [user, setUser] = useState<IUser>({
+  const inittialState = {
+    fullName: '',
     username: '',
+    address: '',
     email: '',
-    imageUrl:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  })
+    imageUrl: '',
+  }
+  const [user, setUser] = useState<IUser>(inittialState)
 
   async function getMyData() {
     const response = await axios.get('/api/users/me')
