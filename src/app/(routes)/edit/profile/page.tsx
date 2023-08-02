@@ -21,7 +21,7 @@ export default function EditProfile() {
 
   const [loading, setLoading] = useState(true)
 
-  const inputRef = useRef()
+  const inputRef = useRef<HTMLInputElement>(null)
 
   async function handleChange(key: string, value: string) {
     // if (key === 'imagePreview') {
