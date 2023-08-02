@@ -3,7 +3,7 @@
 import Loader from '@/app/_components/Loader'
 import { IUser } from '@/app/interfaces'
 import axios from 'axios'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { debounce } from "lodash"
 import { useRouter } from 'next/navigation'
 import { File } from 'buffer'
@@ -13,7 +13,7 @@ import FullPageLoader from '@/app/_components/FullPageLoader'
 export default function EditProfile() {
   const router = useRouter()
 
-  const initialState = { fullName: '', username: '', email: '', address: '', imageUrl: '' }
+  const initialState = { fullName: '', username: '', email: '', address: '', imageUrl: '', imagePreview: '' }
   const [user, setUser] = useState<IUser>(initialState)
 
   const [validEmail, setValidEmail] = useState({ isValid: true, message: '', loading: false })
@@ -21,10 +21,16 @@ export default function EditProfile() {
 
   const [loading, setLoading] = useState(true)
 
-  function handleChange(key: string, value: string) {
-    console.log(user)
+  const inputRef = useRef()
+
+  async function handleChange(key: string, value: string) {
+    // if (key === 'imagePreview') {
+    //   return await handleImageChange(inputRef.current!)
+    // }
 
     setUser({ ...user, [key]: value })
+
+
 
     // if (key === 'email') {
     //   if (value === '') {
@@ -42,8 +48,6 @@ export default function EditProfile() {
     // }
   }
 
-
-
   async function isEmailUsed(email: string) {
     setValidEmail({ ...validEmail, loading: true })
 
@@ -54,7 +58,6 @@ export default function EditProfile() {
     if (data.status === 400)
       return setValidEmail({ isValid: false, message: 'Email is already used', loading: false })
   }
-
 
   async function isUsernameUsed(username: string) {
     const { data } = await axios.get('/api/validation/username', { params: { username } })
@@ -70,23 +73,52 @@ export default function EditProfile() {
     const response = await axios.get('/api/users/me').finally(() => setLoading(false))
 
     if (response.status === 200) {
-      setUser({ ...user, ...response.data.user })
+      setUser({ ...user, ...response.data.user, imagePreview: response.data.user.imageUrl })
     }
   }
 
   async function saveChanges() {
-    const { status } = await axios.put('/api/users/me', user)
+    handleImageChange(inputRef.current!).then(async () => {
+      const { status } = await axios.put('/api/users/me', user)
 
-    if (status === 200) {
-      router.push('/dashboard')
-    }
+      if (status === 200) {
+        router.push('/dashboard')
+      }
+    })
   }
 
   function cancelChanges() {
     router.push('/dashboard')
   }
 
+  function generateImagePreview(e: ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files) return
+
+    let reader = new FileReader()
+    reader.onload = (e) => {
+      handleChange('imageUrl', (e.target as any).result)
+    }
+    reader.readAsDataURL(e.target.files[0])
+  }
+
+  const handleImageChange = async (input: HTMLInputElement) => {
+
+    const formData = new FormData()
+    const files = Array.from(input.files ?? [])
+    for (const file of files) {
+      formData.append(file.name, file)
+    }
+
+    const { data } = await axios.post("/api/upload", formData)
+    delete user.imagePreview
+    handleChange('imageUrl', data.filename)
+  }
+
+
+
   useEffect(() => {
+    console.log('Page rendered')
+
     fetchUser()
   }, [])
 
@@ -107,16 +139,8 @@ export default function EditProfile() {
             }
           } className='w-full h-full rounded-full flex items-center justify-center text-slate-200 mb-3 pb-2'>
             <label className='cursor-pointer' htmlFor="imageUrl">+</label>
-            <input id='imageUrl' onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              const id = (e.currentTarget as any).id
-
-              if (!e.target.files) return
-
-              let reader = new FileReader()
-              reader.onload = (e) => {
-                handleChange(id, (e.target as any).result)
-              }
-              reader.readAsDataURL(e.target.files[0])
+            <input id='imageUrl' ref={inputRef} onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              generateImagePreview(e)
             }} className='hidden' type="file" />
           </div>
         </div>

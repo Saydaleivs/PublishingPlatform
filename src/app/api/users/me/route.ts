@@ -1,13 +1,14 @@
 import { connect } from '@/config/dbConfig'
 import { getDataFromToken } from '@/helpers/decodingToken'
-import User from '@/models/userModel'
 import { NextRequest, NextResponse } from 'next/server'
+import User from '@/models/userModel'
 
 connect()
 
 export async function GET(request: NextRequest) {
   try {
     const { _id } = getDataFromToken(request)
+
     const user = await User.findOne({ _id }).select('-password')
 
     return NextResponse.json({
