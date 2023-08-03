@@ -29,7 +29,8 @@ export async function POST(request: NextRequest) {
       password: hashedPassword,
       address: '',
       imageUrl:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROaHFA3JbJGxEbsw6t1xui2bzVIqNtAUGTnS29jnBUWQ&s',
+        process.env.PICS_URL +
+        '8d721e18f6754c9732c30c4f66a3bee2illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg',
     })
 
     const savedUser = await newUser.save()

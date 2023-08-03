@@ -1,10 +1,12 @@
 'use client'
 
-import Loader from '@/app/_components/Loader'
 import axios from 'axios'
 import Link from 'next/link'
+import Loader from '@/app/_components/Loader'
+import { errorAlert } from '@/app/_components/Alerts'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { ToastContainer } from 'react-toastify'
 
 export default function Signup() {
   const router = useRouter()
@@ -18,17 +20,22 @@ export default function Signup() {
     setLoading(true)
     setButtonDisabled(true)
 
-    const response = await axios.post('/api/users/signup', user).finally(() => {
-      setLoading(false)
-      setButtonDisabled(false)
-    })
-
-    if (response.status === 200) {
-      setUser(initialState)
-      router.push('/edit/profile')
-    }
-
-    console.log(response)
+    await axios
+      .post('/api/users/signup', user)
+      .then((response) => {
+        if (response.status === 200) {
+          setUser(initialState)
+          router.push('/edit/profile')
+        }
+      })
+      .catch((err) => {
+        errorAlert(err.response.data.error)
+        setUser(initialState)
+      })
+      .finally(() => {
+        setLoading(false)
+        setButtonDisabled(false)
+      })
   }
 
   useEffect(() => {
@@ -47,6 +54,7 @@ export default function Signup() {
   return (
     <>
       <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
+        <ToastContainer />
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
           {/* Company logo */}
           <img
@@ -73,7 +81,7 @@ export default function Signup() {
                   id='fullName'
                   name='fullName'
                   type='text'
-                  value={user.fullName}
+                  value={user?.fullName}
                   onChange={(e) => {
                     setUser({ ...user, fullName: e.target.value })
                   }}
@@ -95,7 +103,7 @@ export default function Signup() {
                   id='username'
                   name='username'
                   type='text'
-                  value={user.username}
+                  value={user?.username}
                   onChange={(e) => {
                     setUser({ ...user, username: e.target.value })
                   }}
@@ -120,7 +128,7 @@ export default function Signup() {
                   id='email'
                   name='email'
                   type='email'
-                  value={user.email}
+                  value={user?.email}
                   onChange={(e) => {
                     setUser({ ...user, email: e.target.value })
                   }}
@@ -152,7 +160,7 @@ export default function Signup() {
                   id='password'
                   name='password'
                   type='password'
-                  value={user.password}
+                  value={user?.password}
                   onChange={(e) => {
                     setUser({ ...user, password: e.target.value })
                   }}

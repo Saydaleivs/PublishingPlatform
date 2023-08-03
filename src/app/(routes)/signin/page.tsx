@@ -4,8 +4,9 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Loader from '@/app/_components/Loader'
-import { toast } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
 import Link from 'next/link'
+import { errorAlert } from '@/app/_components/Alerts'
 
 export default function Signin() {
   const router = useRouter()
@@ -18,15 +19,17 @@ export default function Signin() {
     setLoading(true)
     setButtonDisabled(true)
 
-    const response = await axios.post('/api/users/signin', user).finally(() => {
+    const response = await axios.post('/api/users/signin', user).then((response) => {
+      if (response.status === 200) {
+        setUser({ email: '', password: '' })
+        router.push('/dashboard')
+      }
+    }).catch((err) => {
+      errorAlert(err.response.data.error)
+    }).finally(() => {
       setLoading(false)
       setButtonDisabled(false)
     })
-
-    if (response.status === 200) {
-      setUser({ email: '', password: '' })
-      router.push('/dashboard')
-    }
   }
 
   useEffect(() => {
@@ -40,6 +43,7 @@ export default function Signin() {
   return (
     <>
       <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
+        <ToastContainer />
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
           {/* Company logo */}
           <img
@@ -67,7 +71,7 @@ export default function Signin() {
                   name='email'
                   type='email'
                   autoComplete='email'
-                  value={user.email}
+                  value={user?.email}
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
                   required
                   className='pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
@@ -97,7 +101,7 @@ export default function Signin() {
                   id='password'
                   name='password'
                   type='password'
-                  value={user.password}
+                  value={user?.password}
                   onChange={(e) =>
                     setUser({ ...user, password: e.target.value })
                   }

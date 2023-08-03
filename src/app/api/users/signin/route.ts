@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const user = await User.findOne({ email })
     if (!user) {
-      return NextResponse.json({ error: 'User is not exist' }, { status: 400 })
+      return NextResponse.json({ error: 'Email is invalid' }, { status: 400 })
     }
 
     const validPassword = await bcryptjs.compare(password, user.password)

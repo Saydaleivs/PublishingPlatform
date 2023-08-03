@@ -21,27 +21,38 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const body = await request.json()
+  try {
+    const body = await request.json()
 
-  const { _id } = getDataFromToken(request)
-  const user = await User.findOne({
-    $or: [{ email: body?.email }, { username: body?.username }],
-    _id: { $not: { $eq: _id } },
-  })
+    const { _id } = getDataFromToken(request)
+    const user = await User.findOne({
+      $or: [{ email: body?.email }, { username: body?.username }],
+      _id: { $not: { $eq: _id } },
+    })
 
-  if (user) {
-    return NextResponse.json(
-      {
-        mesaaage: 'Username or email already exists',
-      },
-      { status: 400 }
-    )
+    if (user) {
+      return NextResponse.json(
+        {
+          mesaaage: 'Username or email already exists',
+        },
+        { status: 400 }
+      )
+    }
+
+    // Creating url from file name
+    if (body.imageName.length > 0) {
+      body.imageUrl = process.env.PICS_URL + body.imageName
+    }
+
+    const updatedUser = await User.updateOne({ _id }, body)
+
+    return NextResponse.json({
+      message: 'Updated successfully',
+      updatedUser,
+    })
+  } catch (error) {
+    return NextResponse.json({
+      error,
+    })
   }
-
-  const updatedUser = await User.updateOne({ _id }, body)
-
-  return NextResponse.json({
-    message: 'Updated successfully',
-    updatedUser,
-  })
 }

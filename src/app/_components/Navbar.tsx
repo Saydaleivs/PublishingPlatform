@@ -37,7 +37,7 @@ export default function Navbar({ user }: { user: IUser }) {
                   </div>
                   <div className='hidden md:block'>
                     <div className='ml-10 flex items-baseline space-x-4'>
-                      {navigation.map((item) => (
+                      {navigation?.map((item) => (
                         <a
                           key={item.name}
                           href={item.href}
@@ -73,7 +73,7 @@ export default function Navbar({ user }: { user: IUser }) {
                           <span className='sr-only'>Open user menu</span>
                           <img
                             className='h-8 w-8 rounded-full object-cover'
-                            src={user.imageUrl}
+                            src={user?.imageUrl}
                             alt=''
                           />
                         </Menu.Button>
@@ -147,16 +147,16 @@ export default function Navbar({ user }: { user: IUser }) {
                   <div className='flex-shrink-0'>
                     <img
                       className='h-10 w-10 rounded-full'
-                      src={user.imageUrl}
+                      src={user?.imageUrl}
                       alt=''
                     />
                   </div>
                   <div className='ml-3'>
                     <div className='text-base font-medium leading-none text-white'>
-                      {user.username}
+                      {user?.username}
                     </div>
                     <div className='text-sm font-medium leading-none text-gray-400'>
-                      {user.email}
+                      {user?.email}
                     </div>
                   </div>
                   <button
