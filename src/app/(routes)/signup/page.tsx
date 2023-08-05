@@ -5,20 +5,32 @@ import Link from 'next/link'
 import Loader from '@/app/_components/Loader'
 import { errorAlert } from '@/app/_components/Alerts'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
+import useCheckEmail from '@/app/hooks/useCheckEmail'
+import useCheckUsername from '@/app/hooks/useCheckUsername'
+
+interface ISignupData {
+  fullName: string
+  username: string
+  email: string
+  password: string
+}
 
 export default function Signup() {
   const router = useRouter()
 
+  const { validEmail, setValidEmail, isEmailUsed } = useCheckEmail()
+  const { validUsername, setValidUsername, isUsernameUsed } = useCheckUsername()
+
   const initialState = { fullName: '', username: '', email: '', password: '' }
-  const [user, setUser] = useState(initialState)
-  const [buttonDisabled, setButtonDisabled] = useState(true)
+  const [user, setUser] = useState<ISignupData>(initialState)
   const [loading, setLoading] = useState(false)
 
-  const signup = async () => {
+  const signup = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
+
     setLoading(true)
-    setButtonDisabled(true)
 
     await axios
       .post('/api/users/signup', user)
@@ -34,22 +46,35 @@ export default function Signup() {
       })
       .finally(() => {
         setLoading(false)
-        setButtonDisabled(false)
       })
   }
 
-  useEffect(() => {
-    if (
-      user.fullName.length > 0 &&
-      user.username.length > 0 &&
-      user.email.length > 0 &&
-      user.password.length > 0
-    ) {
-      setButtonDisabled(false)
-    } else {
-      setButtonDisabled(true)
+  const handleChange = (key: keyof ISignupData, value: string) => {
+    setUser({ ...user, [key]: value })
+
+    if (key === 'email') {
+      if (value === '') {
+        return setValidEmail({
+          isValid: false,
+          message: 'Email cannot be empty',
+          loading: false,
+        })
+      }
+      isEmailUsed(value)
+      return
     }
-  }, [user])
+
+    if (key === 'username') {
+      if (value === '') {
+        return setValidUsername({
+          isValid: false,
+          message: 'Email cannot be empty',
+          loading: false,
+        })
+      }
+      isUsernameUsed(value)
+    }
+  }
 
   return (
     <>
@@ -68,7 +93,12 @@ export default function Signup() {
         </div>
 
         <div className='mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
-          <form className='space-y-6' action='#' method='POST'>
+          <form
+            onSubmit={signup}
+            className='space-y-6'
+            action='#'
+            method='POST'
+          >
             <div>
               <label
                 htmlFor='fullName'
@@ -83,7 +113,7 @@ export default function Signup() {
                   type='text'
                   value={user?.fullName}
                   onChange={(e) => {
-                    setUser({ ...user, fullName: e.target.value })
+                    handleChange('fullName', e.target.value)
                   }}
                   autoComplete='name'
                   required
@@ -94,9 +124,17 @@ export default function Signup() {
             <div>
               <label
                 htmlFor='username'
-                className='block text-sm font-medium leading-6 text-gray-900'
+                className={`block text-sm font-medium leading-6 ${
+                  validUsername.isValid ? 'text-gray-900' : 'text-red-600'
+                }`}
               >
-                Username
+                {validUsername.loading ? (
+                  <Loader />
+                ) : validUsername.isValid ? (
+                  'Username'
+                ) : (
+                  validUsername.message
+                )}
               </label>
               <div className='mt-2'>
                 <input
@@ -104,8 +142,13 @@ export default function Signup() {
                   name='username'
                   type='text'
                   value={user?.username}
+                  style={{
+                    border: validUsername.isValid
+                      ? '2px solid #858585'
+                      : '2px solid red',
+                  }}
                   onChange={(e) => {
-                    setUser({ ...user, username: e.target.value })
+                    handleChange('username', e.target.value)
                   }}
                   autoComplete='username'
                   required
@@ -118,9 +161,17 @@ export default function Signup() {
               <div className='flex items-center justify-between'>
                 <label
                   htmlFor='email'
-                  className='block text-sm font-medium leading-6 text-gray-900'
+                  className={`block text-sm font-medium leading-6 ${
+                    validEmail.isValid ? 'text-gray-900' : 'text-red-600'
+                  }`}
                 >
-                  Email
+                  {validEmail.loading ? (
+                    <Loader />
+                  ) : validEmail.isValid ? (
+                    'Email'
+                  ) : (
+                    validEmail.message
+                  )}
                 </label>
               </div>
               <div className='mt-2'>
@@ -129,8 +180,13 @@ export default function Signup() {
                   name='email'
                   type='email'
                   value={user?.email}
+                  style={{
+                    border: validEmail.isValid
+                      ? '2px solid #858585'
+                      : '2px solid red',
+                  }}
                   onChange={(e) => {
-                    setUser({ ...user, email: e.target.value })
+                    handleChange('email', e.target.value)
                   }}
                   autoComplete='email'
                   required
@@ -162,7 +218,7 @@ export default function Signup() {
                   type='password'
                   value={user?.password}
                   onChange={(e) => {
-                    setUser({ ...user, password: e.target.value })
+                    handleChange('password', e.target.value)
                   }}
                   autoComplete='current-password'
                   required
@@ -173,10 +229,8 @@ export default function Signup() {
 
             <div>
               <button
-                type='button'
-                onClick={signup}
-                disabled={buttonDisabled ? true : false}
-                className='flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+                type='submit'
+                className={`flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600`}
               >
                 {loading ? <Loader /> : 'Sign up'}
               </button>

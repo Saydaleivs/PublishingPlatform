@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   imageUrl: String,
   username: {
     type: String,
+    unique: true,
     required: [true, 'Please provide a username'],
   },
   email: {

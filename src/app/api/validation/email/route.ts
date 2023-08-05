@@ -1,16 +1,25 @@
 import { getDataFromToken } from '@/helpers/decodingToken'
 import User from '@/models/userModel'
 import { NextRequest, NextResponse } from 'next/server'
+import jwt from 'jsonwebtoken'
 
 export async function GET(request: NextRequest) {
   try {
-    const { _id } = getDataFromToken(request)
-    const email = request.nextUrl.searchParams.get('email')
+    const token = request.cookies.get('token')?.value || null
+    const email = request.nextUrl.searchParams.get('email')?.toLowerCase()
 
-    const user = await User.findOne({
-      email,
-      _id: { $not: { $eq: _id } },
-    })
+    let user
+    if (token) {
+      const { id }: any = jwt.verify(token, process.env.TOKEN_SECRET!)
+      user = await User.findOne({
+        email,
+        _id: { $not: { $eq: id } },
+      })
+    } else {
+      user = await User.findOne({
+        email,
+      })
+    }
 
     if (user) {
       return NextResponse.json({

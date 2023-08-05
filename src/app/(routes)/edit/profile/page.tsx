@@ -3,15 +3,33 @@
 import Loader from '@/app/_components/Loader'
 import { IUser } from '@/app/interfaces'
 import axios from 'axios'
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { debounce } from 'lodash'
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+// import { debounce } from 'lodash'
 import { useRouter } from 'next/navigation'
 import { File } from 'buffer'
 import FullPageLoader from '@/app/_components/FullPageLoader'
 import { flushSync } from 'react-dom'
 import { ToastContainer } from 'react-toastify'
 import { successAlert } from '@/app/_components/Alerts'
+import useCheckEmail from '@/app/hooks/useCheckEmail'
+import useCheckUsername from '@/app/hooks/useCheckUsername'
 
+function debounce(fn: any, delay = 1000) {
+  let timeout: any
+
+  return (...args: any[]) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      fn(...args)
+    }, delay)
+  }
+}
 
 export default function EditProfile() {
   const router = useRouter()
@@ -23,84 +41,42 @@ export default function EditProfile() {
     address: '',
     imageUrl: '',
     imageName: '',
-    isImageChanged: false
+    isImageChanged: false,
   }
-  const [user, setUser] = useState<IUser & { isImageChanged?: boolean }>(initialState)
+  const [user, setUser] = useState<IUser & { isImageChanged?: boolean }>(
+    initialState
+  )
 
-  const [validEmail, setValidEmail] = useState({
-    isValid: true,
-    message: '',
-    loading: false,
-  })
-  const [validUsername, setValidUsername] = useState({
-    isValid: true,
-    message: '',
-    loading: false,
-  })
+  const { validEmail, setValidEmail, isEmailUsed } = useCheckEmail()
+  const { validUsername, setValidUsername, isUsernameUsed } = useCheckUsername()
 
   const [loading, setLoading] = useState(true)
-
   const inputRef = useRef<HTMLInputElement>(null)
 
   async function handleChange(key: keyof IUser, value: string) {
     setUser({ ...user, [key]: value })
-    console.log(user)
 
-    // if (key === 'email') {
-    //   if (value === '') {
-    //     setValidEmail({ isValid: false, message: 'Email cannot be empty', loading: false })
-    //   }
-    //   isEmailUsed(value)
-    // }
+    if (key === 'email') {
+      if (value === '') {
+        setValidEmail({
+          isValid: false,
+          message: 'Email cannot be empty',
+          loading: false,
+        })
+      }
+      isEmailUsed(value)
+    }
 
-    // if (key === 'username') {
-    //   if (value === '') {
-    //     return setValidUsername({ isValid: false, message: 'Email cannot be empty', loading: false })
-    //   }
-    //   setValidUsername({ ...validUsername, loading: true })
-    //   isUsernameUsed(value)
-    // }
-  }
-
-  async function isEmailUsed(email: string) {
-    setValidEmail({ ...validEmail, loading: true })
-
-    const { data } = await axios.get('/api/validation/email', {
-      params: { email },
-    })
-
-    if (data.status === 200)
-      return setValidEmail({
-        isValid: true,
-        message: 'Email can be used',
-        loading: false,
-      })
-    if (data.status === 400)
-      return setValidEmail({
-        isValid: false,
-        message: 'Email is already used',
-        loading: false,
-      })
-  }
-
-  async function isUsernameUsed(username: string) {
-    const { data } = await axios.get('/api/validation/username', {
-      params: { username },
-    })
-
-    if (data.status === 200)
-      return setValidUsername({
-        isValid: true,
-        message: 'Username can be used',
-        loading: false,
-      })
-
-    if (data.status === 400)
-      return setValidUsername({
-        isValid: true,
-        message: 'Username is already used',
-        loading: false,
-      })
+    if (key === 'username') {
+      if (value === '') {
+        return setValidUsername({
+          isValid: false,
+          message: 'Email cannot be empty',
+          loading: false,
+        })
+      }
+      isUsernameUsed(value)
+    }
   }
 
   async function fetchUser() {
@@ -114,9 +90,7 @@ export default function EditProfile() {
   }
 
   async function saveChanges() {
-    if (user.isImageChanged)
-      await handleImageChange(inputRef.current!)
-
+    if (user.isImageChanged) await handleImageChange(inputRef.current!)
 
     const { status } = await axios.put('/api/users/me', user)
 
@@ -124,10 +98,6 @@ export default function EditProfile() {
       successAlert('Updated successfully')
       router.push('/dashboard')
     }
-  }
-
-  function cancelChanges() {
-    router.push('/dashboard')
   }
 
   function generateImagePreview(e: ChangeEvent<HTMLInputElement>) {
@@ -151,6 +121,10 @@ export default function EditProfile() {
     const { data } = await axios.post('/api/upload', formData)
     user.imageName = data.filename
     delete user.isImageChanged
+  }
+
+  function cancelChanges() {
+    router.push('/dashboard')
   }
 
   useEffect(() => {
@@ -250,8 +224,9 @@ function Input({ handleChange, value, label, id, validation }: IInput) {
   return (
     <div className='mb-4'>
       <label
-        className={`${isValid ? 'text-gray-900' : 'text-red-600'
-          } text-2xl not-italic font-semibold`}
+        className={`${
+          isValid ? 'text-gray-900' : 'text-red-600'
+        } text-2xl not-italic font-semibold`}
         htmlFor={id}
       >
         {loading ? <Loader /> : isValid ? label : message}
@@ -260,10 +235,7 @@ function Input({ handleChange, value, label, id, validation }: IInput) {
         id={id}
         value={value}
         onChange={(e: React.SyntheticEvent) =>
-          handleChange(
-            e.currentTarget.id as keyof IUser,
-            (e.currentTarget as any).value
-          )
+          handleChange(id as keyof IUser, (e.currentTarget as any).value)
         }
         style={{
           height: '70px',

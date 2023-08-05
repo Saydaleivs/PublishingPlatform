@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password } = body
 
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email: (email as string).toLowerCase() })
     if (!user) {
       return NextResponse.json({ error: 'Email is invalid' }, { status: 400 })
     }

@@ -6,7 +6,8 @@ connect()
 
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    const username = request.nextUrl.searchParams.get('username')?.toLowerCase()
+
     if (!username) {
       return NextResponse.json(
         { error: 'Username is required is params' },

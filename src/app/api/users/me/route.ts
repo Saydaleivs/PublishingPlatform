@@ -26,7 +26,10 @@ export async function PUT(request: NextRequest) {
 
     const { _id } = getDataFromToken(request)
     const user = await User.findOne({
-      $or: [{ email: body?.email }, { username: body?.username }],
+      $or: [
+        { email: (body?.email as string).toLowerCase() },
+        { username: (body?.username as string).toLowerCase() },
+      ],
       _id: { $not: { $eq: _id } },
     })
 
