@@ -30,4 +30,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   await sendEmail('saeedbek1111@gmail.com', 'SEND_EMAIL', '123')
+  return NextResponse.json(
+    { message: 'Email sent successfully' },
+    { status: 200 }
+  )
 }
