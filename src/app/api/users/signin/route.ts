@@ -1,7 +1,7 @@
 import { connect } from '@/config/dbConfig'
 import User from '@/models/userModel'
 import { NextRequest, NextResponse } from 'next/server'
-import bcryptjs from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 connect()
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email is invalid' }, { status: 400 })
     }
 
-    const validPassword = await bcryptjs.compare(password, user.password)
+    const validPassword = await bcrypt.compare(password, user.password)
     if (!validPassword) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 400 })
     }

@@ -1,9 +1,17 @@
 import mongoose from 'mongoose'
 
 const userSchema = new mongoose.Schema({
-  fullName: String,
-  address: String,
-  imageUrl: String,
+  fullName: { type: String, required: [true, 'Please provide your full name'] },
+  address: {
+    type: String,
+    default: '',
+  },
+  imageUrl: {
+    type: String,
+    default:
+      process.env.PICS_URL +
+      '8d721e18f6754c9732c30c4f66a3bee2illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg',
+  },
   username: {
     type: String,
     unique: true,
@@ -18,18 +26,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password'],
   },
-  // isVerfied: {
-  //   type: Boolean,
-  //   default: false,
-  // },
-  // isAdmin: {
-  //   type: Boolean,
-  //   default: false,
-  // },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verifyToken: String,
+  verifyTokenExpiry: Date,
   // forgotPasswordToken: String,
   // forgotPasswordTokenExpiry: Date,
-  // verifyToken: String,
-  // verifyTokenExpiry: Date,
 })
 
 const User = mongoose.models.users || mongoose.model('users', userSchema)

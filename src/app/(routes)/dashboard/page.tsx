@@ -7,19 +7,21 @@ import { IUser } from '@/app/interfaces'
 import useLogout from '@/app/hooks/useLogout'
 import FullPageLoader from '@/app/_components/FullPageLoader'
 import { ToastContainer } from 'react-toastify'
+import VerifyEmail from '@/app/_components/VerifyEmail'
 
 export default function Dashboard() {
   const logout = useLogout()
-
   const [loading, setLoading] = useState(true)
 
   const [user, setUser] = useState<IUser>()
 
   async function getMyData() {
-    const response = await axios.get('/api/users/me').finally(() => setLoading(false))
+    const response = await axios
+      .get('/api/users/me')
+      .finally(() => setLoading(false))
 
     if (response.status === 200) {
-      setUser(response.data.user)
+      return setUser(response.data.user)
     }
   }
 

@@ -1,8 +1,9 @@
 import { connect } from '@/config/dbConfig'
 import User from '@/models/userModel'
 import { NextRequest, NextResponse } from 'next/server'
-import bcryptjs from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { sendEmail } from '@/helpers/sendEmail'
 
 connect()
 
@@ -22,18 +23,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const salt = await bcryptjs.genSalt(10)
-    const hashedPassword = await bcryptjs.hash(password, salt)
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
 
     const newUser = new User({
+      fullName,
       username: (username as string).toLowerCase(),
       email: (email as string).toLowerCase(),
-      fullName,
       password: hashedPassword,
-      address: '',
-      imageUrl:
-        process.env.PICS_URL +
-        '8d721e18f6754c9732c30c4f66a3bee2illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg',
     })
 
     const savedUser = await newUser.save()
@@ -47,6 +44,8 @@ export async function POST(request: NextRequest) {
     const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
       expiresIn: '1d',
     })
+
+    await sendEmail(email, 'VERIFY', savedUser._id.toString())
 
     const response = NextResponse.json({
       message: 'User created successfully',

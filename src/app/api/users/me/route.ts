@@ -8,8 +8,17 @@ connect()
 export async function GET(request: NextRequest) {
   try {
     const { _id } = getDataFromToken(request)
-
     const user = await User.findOne({ _id }).select('-password')
+
+    if (!user.isVerified) {
+      return NextResponse.json(
+        {
+          mesaaage:
+            'Please check your email and verify your account by clicking the link there',
+        },
+        { status: 401 }
+      )
+    }
 
     return NextResponse.json({
       mesaaage: 'User found',

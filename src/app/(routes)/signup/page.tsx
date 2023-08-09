@@ -41,6 +41,8 @@ export default function Signup() {
         }
       })
       .catch((err) => {
+        console.log(err)
+
         errorAlert(err.response.data.error)
         setUser(initialState)
       })
