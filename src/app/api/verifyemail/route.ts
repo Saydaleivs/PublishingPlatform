@@ -1,4 +1,5 @@
 import { connect } from '@/config/dbConfig'
+import { sendEmail } from '@/helpers/sendEmail'
 import User from '@/models/userModel'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -25,4 +26,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 })
   }
+}
+
+export async function POST(request: NextRequest) {
+  await sendEmail('saeedbek1111@gmail.com', 'SEND_EMAIL', '123')
 }

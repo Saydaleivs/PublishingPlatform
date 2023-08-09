@@ -47,26 +47,6 @@ export const sendEmail = async (email, emailType, userId) => {
     },
   }
 
-  // const emailData = {
-  //   Recipients: [
-  //     {
-  //       Email: email,
-  //     },
-  //   ],
-  //   Content: {
-  //     Body: [
-  //       {
-  //         ContentType: 'HTML',
-  //         Charset: 'utf-8',
-  //         Content: 'hey',
-  //         Content: `<p>By clicking this <a href="${process.env.DOMAIN}/api/verifyemail?token=${hashedToken}">link</a> you will verify your email</p>`,
-  //       },
-  //     ],
-  //     From: 'mail@saeed.uz',
-  //     Subject: 'Email verification',
-  //   },
-  // }
-
   const callback = (error, data, response) => {
     if (error) {
       console.error(error)
