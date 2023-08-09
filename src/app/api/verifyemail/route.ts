@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
       verifyToken: token,
       verifyTokenExpiry: { $gt: Date.now() },
     })
+
     if (!user) {
       return NextResponse.json({ message: 'Invalid token', success: false })
     }

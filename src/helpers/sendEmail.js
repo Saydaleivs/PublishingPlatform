@@ -1,12 +1,8 @@
+import { Resend } from 'resend'
 import User from '@/models/userModel'
 import bcrypt from 'bcrypt'
 
-const ElasticEmail = require('@elasticemail/elasticemail-client')
-const client = ElasticEmail.ApiClient.instance
-const apikey = client.authentications['apikey']
-apikey.apiKey = process.env.ELASTICMAIL_TOKEN
-
-const emailsApi = new ElasticEmail.EmailsApi()
+const resend = new Resend('re_KKZRPfbw_E2tAHjwPmy4gMHEp5t5ZiSRs')
 
 export const sendEmail = async (email, emailType, userId) => {
   const hashedToken = await bcrypt.hash(userId, 10)
@@ -17,44 +13,14 @@ export const sendEmail = async (email, emailType, userId) => {
     })
   }
 
-  const emailData = {
-    Recipients: [
-      {
-        Email: email,
-        Fields: {
-          tokenURL:
-            process.env.DOMAIN + '/api/verifyemail?token=' + hashedToken,
-        },
-      },
-    ],
-    Content: {
-      Body: [
-        {
-          ContentType: 'HTML',
-          Charset: 'utf-8',
-          Content:
-            'Hi! Verify token by clicking the <a href="{tokenURL}">Link</a>',
-        },
-        {
-          ContentType: 'PlainText',
-          Charset: 'utf-8',
-          Content:
-            'Hi! Verify token by clicking the <a href="{tokenURL}">Link</a>',
-        },
-      ],
-      From: 'mail@saeed.uz',
-      Subject: 'Email verification',
-    },
-  }
+  const tokenURL = process.env.DOMAIN + '/api/verifyemail?token=' + hashedToken
+  const html = `<h3>Hi! Please verify your account by clicking this button</h3> <br /> 
+  <span><a href="${tokenURL}" style="padding:15px 25px; background-color:#0087D1; color:#ffffff; border-radius:3px; text-decoration:none;">Verify Email</a></span>`
 
-  const callback = (error, data, response) => {
-    if (error) {
-      console.error(error)
-    } else {
-      console.log('API called successfully.')
-      console.log('Email sent.')
-    }
-  }
-
-  emailsApi.emailsPost(emailData, callback)
+  resend.emails.send({
+    from: 'mail@saeed.uz',
+    to: email,
+    subject: 'Email verification',
+    html,
+  })
 }
