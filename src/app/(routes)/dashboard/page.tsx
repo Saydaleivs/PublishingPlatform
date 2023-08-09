@@ -7,7 +7,7 @@ import { IUser } from '@/app/interfaces'
 import useLogout from '@/app/hooks/useLogout'
 import FullPageLoader from '@/app/_components/FullPageLoader'
 import { ToastContainer } from 'react-toastify'
-import VerifyEmail from '@/app/_components/VerifyEmail'
+import VerifyEmailPage from '@/app/_components/VerifyEmail'
 
 export default function Dashboard() {
   const logout = useLogout()

@@ -45,19 +45,13 @@ export async function POST(request: NextRequest) {
       expiresIn: '1d',
     })
 
-    await sendEmail(email, 'VERIFY', savedUser._id.toString())
+    await sendEmail(email, 'VERIFY', savedUser._id.toString(), token)
 
-    const response = NextResponse.json({
-      message: 'User created successfully',
+    return NextResponse.json({
+      message:
+        'Profile created successfully, now please checkout your email and verify',
       status: 201,
-      token,
     })
-
-    response.cookies.set('token', token, {
-      httpOnly: true,
-    })
-
-    return response
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function VerifyEmail() {
+export default function VerifyEmailPage() {
   return (
     <div className='relative flex min-h-screen flex-col items-center justify-center overflow-hidden py-6 sm:py-12 bg-white'>
       <div className='max-w-xl px-5 text-center'>

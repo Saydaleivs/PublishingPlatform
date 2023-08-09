@@ -7,8 +7,6 @@ import { errorAlert } from '@/app/_components/Alerts'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
-import useCheckEmail from '@/app/hooks/useCheckEmail'
-import useCheckUsername from '@/app/hooks/useCheckUsername'
 
 interface ISignupData {
   fullName: string
@@ -19,9 +17,6 @@ interface ISignupData {
 
 export default function Signup() {
   const router = useRouter()
-
-  const { validEmail, setValidEmail, isEmailUsed } = useCheckEmail()
-  const { validUsername, setValidUsername, isUsernameUsed } = useCheckUsername()
 
   const initialState = { fullName: '', username: '', email: '', password: '' }
   const [user, setUser] = useState<ISignupData>(initialState)
@@ -36,13 +31,11 @@ export default function Signup() {
       .post('/api/users/signup', user)
       .then((response) => {
         if (response.status === 200) {
+          router.push(`/verifyemail/${user.email}`)
           setUser(initialState)
-          router.push('/edit/profile')
         }
       })
       .catch((err) => {
-        console.log(err)
-
         errorAlert(err.response.data.error)
         setUser(initialState)
       })
@@ -53,29 +46,6 @@ export default function Signup() {
 
   const handleChange = (key: keyof ISignupData, value: string) => {
     setUser({ ...user, [key]: value })
-
-    if (key === 'email') {
-      if (value === '') {
-        return setValidEmail({
-          isValid: false,
-          message: 'Email cannot be empty',
-          loading: false,
-        })
-      }
-      isEmailUsed(value)
-      return
-    }
-
-    if (key === 'username') {
-      if (value === '') {
-        return setValidUsername({
-          isValid: false,
-          message: 'Email cannot be empty',
-          loading: false,
-        })
-      }
-      isUsernameUsed(value)
-    }
   }
 
   return (
@@ -129,17 +99,9 @@ export default function Signup() {
             <div>
               <label
                 htmlFor='username'
-                className={`block text-sm font-medium leading-6 ${
-                  validUsername.isValid ? 'text-gray-900' : 'text-red-600'
-                }`}
+                className={`block text-sm font-medium leading-6 text-gray-900`}
               >
-                {validUsername.loading ? (
-                  <Loader />
-                ) : validUsername.isValid ? (
-                  'Username'
-                ) : (
-                  validUsername.message
-                )}
+                Username
               </label>
               <div className='mt-2'>
                 <input
@@ -148,9 +110,7 @@ export default function Signup() {
                   type='text'
                   value={user?.username}
                   style={{
-                    border: validUsername.isValid
-                      ? '2px solid #858585'
-                      : '2px solid red',
+                    border: '2px solid #858585',
                   }}
                   onChange={(e) => {
                     handleChange('username', e.target.value)
@@ -166,17 +126,9 @@ export default function Signup() {
               <div className='flex items-center justify-between'>
                 <label
                   htmlFor='email'
-                  className={`block text-sm font-medium leading-6 ${
-                    validEmail.isValid ? 'text-gray-900' : 'text-red-600'
-                  }`}
+                  className={`block text-sm font-medium leading-6 text-gray-900`}
                 >
-                  {validEmail.loading ? (
-                    <Loader />
-                  ) : validEmail.isValid ? (
-                    'Email'
-                  ) : (
-                    validEmail.message
-                  )}
+                  Email
                 </label>
               </div>
               <div className='mt-2'>
@@ -186,9 +138,7 @@ export default function Signup() {
                   type='email'
                   value={user?.email}
                   style={{
-                    border: validEmail.isValid
-                      ? '2px solid #858585'
-                      : '2px solid red',
+                    border: '2px solid #858585',
                   }}
                   onChange={(e) => {
                     handleChange('email', e.target.value)
