@@ -113,6 +113,9 @@ export default function Signup() {
                   id='fullName'
                   name='fullName'
                   type='text'
+                  style={{
+                    border: '2px solid #858585',
+                  }}
                   value={user?.fullName}
                   onChange={(e) => {
                     handleChange('fullName', e.target.value)
@@ -218,6 +221,9 @@ export default function Signup() {
                   id='password'
                   name='password'
                   type='password'
+                  style={{
+                    border: '2px solid #858585',
+                  }}
                   value={user?.password}
                   onChange={(e) => {
                     handleChange('password', e.target.value)

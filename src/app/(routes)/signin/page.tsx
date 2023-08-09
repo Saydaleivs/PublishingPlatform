@@ -19,17 +19,21 @@ export default function Signin() {
     setLoading(true)
     setButtonDisabled(true)
 
-    const response = await axios.post('/api/users/signin', user).then((response) => {
-      if (response.status === 200) {
-        setUser({ email: '', password: '' })
-        router.push('/dashboard')
-      }
-    }).catch((err) => {
-      errorAlert(err.response.data.error)
-    }).finally(() => {
-      setLoading(false)
-      setButtonDisabled(false)
-    })
+    const response = await axios
+      .post('/api/users/signin', user)
+      .then((response) => {
+        if (response.status === 200) {
+          setUser({ email: '', password: '' })
+          router.push('/dashboard')
+        }
+      })
+      .catch((err) => {
+        errorAlert(err.response.data.error)
+      })
+      .finally(() => {
+        setLoading(false)
+        setButtonDisabled(false)
+      })
   }
 
   useEffect(() => {
@@ -70,6 +74,9 @@ export default function Signin() {
                   id='email'
                   name='email'
                   type='email'
+                  style={{
+                    border: '2px solid #858585',
+                  }}
                   autoComplete='email'
                   value={user?.email}
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
@@ -101,6 +108,9 @@ export default function Signin() {
                   id='password'
                   name='password'
                   type='password'
+                  style={{
+                    border: '2px solid #858585',
+                  }}
                   value={user?.password}
                   onChange={(e) =>
                     setUser({ ...user, password: e.target.value })
