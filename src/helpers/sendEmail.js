@@ -32,7 +32,7 @@ export const sendEmail = async (email, emailType, userId, jwtToken) => {
       )
     }
     if (emailType === 'FORGET_PASSWORD') {
-      return process.env.DOMAIN + '/forgetPassword/' + hashedToken
+      return process.env.DOMAIN + '/forgetPassword?token=' + hashedToken
     }
   })()
 

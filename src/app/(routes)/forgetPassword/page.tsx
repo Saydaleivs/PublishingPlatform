@@ -2,10 +2,13 @@
 
 import { errorAlert } from '@/app/_components/Alerts'
 import axios from 'axios'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
 
 export default function ForgetPassword({ searchParams }: any) {
+  const router = useRouter()
+
   const [isValidToken, setIsValidToken] = useState(false)
   const [newPassword, setNewPassword] = useState({
     password: '',
@@ -13,11 +16,11 @@ export default function ForgetPassword({ searchParams }: any) {
   })
 
   const checkTokenValidity = async () => {
-    const response = await axios.get('/api/users/forgetPassword', {
-      params: { token: searchParams.token },
-    })
-
-    console.log(response)
+    await axios
+      .get('/api/users/forgetPassword', {
+        params: { token: searchParams.token },
+      })
+      .then(() => setIsValidToken(true))
   }
 
   const resetPassword = async (e: React.SyntheticEvent) => {
@@ -27,15 +30,23 @@ export default function ForgetPassword({ searchParams }: any) {
       return errorAlert('Confirm your password correctly')
     }
 
-    const response = await axios.put('/api/users/forgetPassword', '', {
-      params: { newPassword: newPassword.password, token: searchParams.token },
-    })
-    console.log(response)
+    await axios
+      .put('/api/users/forgetPassword', '', {
+        params: {
+          newPassword: newPassword.password,
+          token: searchParams.token,
+        },
+      })
+      .then(() => router.push('/signin'))
   }
 
   useEffect(() => {
     checkTokenValidity()
   }, [])
+
+  if (!isValidToken) {
+    return <h1>Not valid</h1>
+  }
 
   return (
     <section className='bg-gray-50 dark:bg-gray-900'>

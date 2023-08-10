@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Loader from '@/app/_components/Loader'
 import { ToastContainer, toast } from 'react-toastify'
 import Link from 'next/link'
-import { errorAlert } from '@/app/_components/Alerts'
+import { errorAlert, successAlert } from '@/app/_components/Alerts'
 
 export default function Signin() {
   const router = useRouter()
@@ -45,10 +45,12 @@ export default function Signin() {
       return errorAlert('It is not a valid email')
     }
 
-    const response = await axios.get('/api/users/forgetPassword', {
-      params: { email: user.email },
-    })
-    console.log(response)
+    await axios
+      .get('/api/users/forgetPassword', {
+        params: { email: user.email },
+      })
+      .then((res) => successAlert(res.data.message))
+      .catch((err) => errorAlert(err.response.data.message))
   }
 
   const isValidEmail = (email: string) => {

@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
     }
 
     const email = request.nextUrl.searchParams.get('email')
-
     const user = await User.findOne({ email })
 
     if (!user) {
