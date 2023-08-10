@@ -57,7 +57,7 @@ export const sendEmail = async (email, emailType, userId, jwtToken) => {
     }
   })()
 
-  resend.emails.send({
+  await resend.emails.send({
     from: 'mail@saeed.uz',
     to: email,
     subject,
