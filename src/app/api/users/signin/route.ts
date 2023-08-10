@@ -16,6 +16,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email is invalid' }, { status: 400 })
     }
 
+    if (!user.isVerified) {
+      return NextResponse.json(
+        {
+          error: 'Please check your email and verify your account first',
+        },
+        { status: 400 }
+      )
+    }
+
     const validPassword = await bcrypt.compare(password, user.password)
     if (!validPassword) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 400 })

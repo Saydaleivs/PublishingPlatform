@@ -13,7 +13,10 @@ export async function POST(request: NextRequest) {
     const { fullName, username, email, password } = body
 
     const user = await User.findOne({
-      $or: [{ email }, { username }],
+      $or: [
+        { email: (email as string).toLowerCase() },
+        { username: (username as string).toLowerCase() },
+      ],
     })
 
     if (user) {

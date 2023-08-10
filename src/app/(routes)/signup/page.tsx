@@ -31,7 +31,7 @@ export default function Signup() {
       .post('/api/users/signup', user)
       .then((response) => {
         if (response.status === 200) {
-          router.push(`/verifyemail/${user.email}`)
+          router.push(`/verifyemail?email=${user.email}`)
           setUser(initialState)
         }
       })
@@ -157,14 +157,6 @@ export default function Signup() {
                 >
                   Password
                 </label>
-                <div className='text-sm'>
-                  <a
-                    href='#'
-                    className='font-semibold text-indigo-600 hover:text-indigo-500'
-                  >
-                    Forgot password?
-                  </a>
-                </div>
               </div>
               <div className='mt-2'>
                 <input

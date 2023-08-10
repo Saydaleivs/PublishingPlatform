@@ -16,14 +16,10 @@ export async function GET(request: NextRequest) {
     })
 
     if (!user) {
-      // return NextResponse.json({ message: 'Invalid token', success: false })
-      return new NextResponse(
-        `<h1>Email verified !</h1><span><a href="${process.env.DOMAIN}" style="padding:15px 25px; background-color:#0087D1; color:#ffffff; border-radius:3px; text-decoration:none;">Go back to app</a></span>`,
-        {
-          status: 410,
-          headers: { 'content-type': 'text/html' },
-        }
-      )
+      return new NextResponse(`<h1>Invalid token</h1>`, {
+        status: 400,
+        headers: { 'content-type': 'text/html' },
+      })
     }
 
     user.isVerified = true

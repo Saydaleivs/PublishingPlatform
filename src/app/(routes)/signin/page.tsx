@@ -1,7 +1,7 @@
 'use client'
 
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Loader from '@/app/_components/Loader'
 import { ToastContainer, toast } from 'react-toastify'
@@ -12,14 +12,13 @@ export default function Signin() {
   const router = useRouter()
 
   const [user, setUser] = useState({ email: '', password: '' })
-  const [buttonDisabled, setButtonDisabled] = useState(true)
   const [loading, setLoading] = useState(false)
 
-  const signin = async () => {
-    setLoading(true)
-    setButtonDisabled(true)
+  const signin = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
 
-    const response = await axios
+    setLoading(true)
+    await axios
       .post('/api/users/signin', user)
       .then((response) => {
         if (response.status === 200) {
@@ -32,17 +31,29 @@ export default function Signin() {
       })
       .finally(() => {
         setLoading(false)
-        setButtonDisabled(false)
       })
   }
 
-  useEffect(() => {
-    if (user.email.length > 0 && user.password.length > 0) {
-      setButtonDisabled(false)
-    } else {
-      setButtonDisabled(true)
+  const forgetPassword = async () => {
+    if (!user.email.length) {
+      return errorAlert(
+        'Please enter your email to use forget password feature'
+      )
     }
-  }, [user])
+
+    if (!isValidEmail(user.email)) {
+      return errorAlert('It is not a valid email')
+    }
+
+    const response = await axios.get('/api/users/forgetPassword', {
+      params: { email: user.email },
+    })
+    console.log(response)
+  }
+
+  const isValidEmail = (email: string) => {
+    return /\S+@\S+\.\S+/.test(email)
+  }
 
   return (
     <>
@@ -61,7 +72,12 @@ export default function Signin() {
         </div>
 
         <div className='mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
-          <form className='space-y-6' action='#' method='POST'>
+          <form
+            onSubmit={signin}
+            className='space-y-6'
+            action='#'
+            method='POST'
+          >
             <div>
               <label
                 htmlFor='email'
@@ -95,12 +111,13 @@ export default function Signin() {
                   Password
                 </label>
                 <div className='text-sm'>
-                  <a
-                    href='#'
+                  <Link
+                    onClick={forgetPassword}
+                    href={'/signin'}
                     className='font-semibold text-indigo-600 hover:text-indigo-500'
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className='mt-2'>
@@ -124,9 +141,7 @@ export default function Signin() {
 
             <div>
               <button
-                type='button'
-                disabled={buttonDisabled ? true : false}
-                onClick={signin}
+                type='submit'
                 className='flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
               >
                 {loading ? <Loader /> : 'Sign in'}
