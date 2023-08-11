@@ -17,9 +17,7 @@ export default function ForgetPassword({ searchParams }: any) {
 
   const checkTokenValidity = async () => {
     const res = await axios
-      .get('/api/users/forgetPassword', {
-        params: { token: searchParams.token },
-      })
+      .get('/api/users/forgetPassword?token=' + searchParams.token)
       .then(() => setIsValidToken(true))
       .catch(() => setIsValidToken(false))
     console.log(res)
