@@ -2,12 +2,15 @@
 
 import { errorAlert } from '@/app/_components/Alerts'
 import axios from 'axios'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
 
-export default function ForgetPassword({ searchParams }: any) {
+export default function ForgetPassword() {
   const router = useRouter()
+
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
 
   const [isValidToken, setIsValidToken] = useState<boolean>()
   const [newPassword, setNewPassword] = useState({
@@ -17,7 +20,7 @@ export default function ForgetPassword({ searchParams }: any) {
 
   const checkTokenValidity = async () => {
     const res = await axios
-      .get('/api/users/forgetPassword?token=' + searchParams.token)
+      .get('/api/users/forgetPassword?token=' + token)
       .then(() => setIsValidToken(true))
       .catch(() => setIsValidToken(false))
     console.log(res)
@@ -34,7 +37,7 @@ export default function ForgetPassword({ searchParams }: any) {
       .put('/api/users/forgetPassword', '', {
         params: {
           newPassword: newPassword.password,
-          token: searchParams.token,
+          token,
         },
       })
       .then(() => router.push('/signin'))
