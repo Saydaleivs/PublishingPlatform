@@ -9,7 +9,7 @@ import { ToastContainer } from 'react-toastify'
 export default function ForgetPassword({ searchParams }: any) {
   const router = useRouter()
 
-  const [isValidToken, setIsValidToken] = useState(false)
+  const [isValidToken, setIsValidToken] = useState<boolean>()
   const [newPassword, setNewPassword] = useState({
     password: '',
     confirmPassword: '',

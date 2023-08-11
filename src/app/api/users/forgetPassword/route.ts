@@ -8,9 +8,9 @@ connect()
 
 export async function GET(request: NextRequest) {
   try {
-    const fpToken = request.nextUrl.searchParams.get('token')
+    const fpToken = request.nextUrl.searchParams.get('token')!
 
-    if (fpToken) {
+    if (fpToken.length > 0) {
       const user = await User.findOne({
         forgotPasswordToken: fpToken,
         forgotPasswordTokenExpiry: { $gt: Date.now() },
