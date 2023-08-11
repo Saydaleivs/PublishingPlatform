@@ -3,6 +3,7 @@
 import React from 'react'
 
 export default function VerifyEmail({ searchParams }: any) {
+  const type: 'password' | 'verify' = searchParams.type
   return (
     <div className='relative flex min-h-screen flex-col items-center justify-center overflow-hidden py-6 sm:py-12 bg-white'>
       <div className='max-w-xl px-5 text-center'>
@@ -10,8 +11,9 @@ export default function VerifyEmail({ searchParams }: any) {
           Check your inbox
         </h2>
         <p className='mb-2 text-lg text-zinc-500'>
-          We are glad, that you’re with us ? We’ve sent you a verification link
-          to the email address{' '}
+          We are glad, that you’re with us ? We’ve sent you a{' '}
+          {type === 'password' ? 'password reset' : 'verification'} link to the
+          email address{' '}
           <span className='font-medium text-indigo-500'>
             {searchParams.email}
           </span>

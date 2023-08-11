@@ -25,13 +25,14 @@ export default function Signup() {
   const signup = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
+    if (loading) return
     setLoading(true)
 
     await axios
       .post('/api/users/signup', user)
       .then((response) => {
         if (response.status === 200) {
-          router.push(`/verifyemail?email=${user.email}`)
+          router.push(`/checkInbox?type=verify&email=${user.email}`)
           setUser(initialState)
         }
       })

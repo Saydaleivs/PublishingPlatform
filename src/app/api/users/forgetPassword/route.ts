@@ -2,6 +2,9 @@ import User from '@/models/userModel'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcrypt'
 import { sendEmail } from '@/helpers/sendEmail'
+import { connect } from '@/config/dbConfig'
+
+connect()
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,6 +22,7 @@ export async function GET(request: NextRequest) {
           { status: 400 }
         )
       }
+
       return NextResponse.json({ message: 'Token is valid' }, { status: 200 })
     }
 

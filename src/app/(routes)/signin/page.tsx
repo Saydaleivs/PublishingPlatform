@@ -16,13 +16,13 @@ export default function Signin() {
 
   const signin = async (e: React.SyntheticEvent) => {
     e.preventDefault()
+    if (loading) return
 
     setLoading(true)
     await axios
       .post('/api/users/signin', user)
       .then((response) => {
         if (response.status === 200) {
-          setUser({ email: '', password: '' })
           router.push('/dashboard')
         }
       })
@@ -35,6 +35,7 @@ export default function Signin() {
   }
 
   const forgetPassword = async () => {
+    if (loading) return
     if (!user.email.length) {
       return errorAlert(
         'Please enter your email to use forget password feature'
@@ -45,12 +46,14 @@ export default function Signin() {
       return errorAlert('It is not a valid email')
     }
 
+    setLoading(true)
     await axios
       .get('/api/users/forgetPassword', {
         params: { email: user.email },
       })
-      .then((res) => successAlert(res.data.message))
+      .then(() => router.push('/checkInbox?type=password&email=' + user.email))
       .catch((err) => errorAlert(err.response.data.message))
+      .finally(() => setLoading(false))
   }
 
   const isValidEmail = (email: string) => {
