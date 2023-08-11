@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const fpToken = request.nextUrl.searchParams.get('token')!
 
-    if (fpToken.length > 0) {
+    if (fpToken) {
       const user = await User.findOne({
         forgotPasswordToken: fpToken,
         forgotPasswordTokenExpiry: { $gt: Date.now() },
